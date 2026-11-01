@@ -1,0 +1,78 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  macos:
+    name: macOS (universal VST3 / AU / Standalone)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: >
+          cmake --build build --parallel
+          --target MarkIVPreamp_VST3 MarkIVPreamp_AU MarkIVPreamp_Standalone markiv_tests MarkIVPluginSmoke
+
+      - name: Model tests
+        run: ./build/markiv_tests
+
+      - name: Plugin smoke test
+        run: ./build/MarkIVPluginSmoke
+
+      - name: Ad-hoc sign
+        run: |
+          cd "build/MarkIVPreamp_artefacts/Release"
+          codesign --force --deep --sign - "VST3/Mark IV Preamp.vst3"
+          codesign --force --deep --sign - "AU/Mark IV Preamp.component"
+          codesign --force --deep --sign - "Standalone/Mark IV Preamp.app"
+
+      - name: Validate AU
+        continue-on-error: true
+        run: |
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "build/MarkIVPreamp_artefacts/Release/AU/Mark IV Preamp.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar || true
+          auval -v aufx Mk4p Msin
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          cd "build/MarkIVPreamp_artefacts/Release"
+          ditto -c -k --keepParent "VST3/Mark IV Preamp.vst3" "$GITHUB_WORKSPACE/dist/MarkIV-Preamp-VST3-macOS.zip"
+          ditto -c -k --keepParent "AU/Mark IV Preamp.component" "$GITHUB_WORKSPACE/dist/MarkIV-Preamp-AU-macOS.zip"
+          ditto -c -k --keepParent "Standalone/Mark IV Preamp.app" "$GITHUB_WORKSPACE/dist/MarkIV-Preamp-Standalone-macOS.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarkIV-Preamp-macOS
+          path: dist/*.zip
+
+  linux:
+    name: Linux (model tests + VST3 compile)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libasound2-dev libx11-dev libxrandr-dev libxinerama-dev \
+            libxcursor-dev libxext-dev libfreetype-dev libfontconfig1-dev
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel --target MarkIVPreamp_VST3 markiv_tests MarkIVPluginSmoke
+      - name: Tests
+        run: |
+          ./build/markiv_tests
+          ./build/MarkIVPluginSmoke
