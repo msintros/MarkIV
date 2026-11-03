@@ -1,3 +1,5 @@
+This is very much a work in progress, and mostly I just wanted to see how easy it would be to give Claude a schematic and have it turn it into a working plug-in.  As it is, the lead and R2 channels sound similar to a real Mark IV but R1 clean needs some work.  I suspect I will have to have Claude somehow condition the input signal to mimic the correct impedance.  Anyway, if you build this in its current state, don't expect it to knock your socks off.  
+
 # Mark IV Preamp
 
 A VST3 / AU plugin that models the preamp, lead stages and five-band graphic EQ of a Mesa/Boogie Mark IVB guitar amplifier. The model is built directly from the factory schematic. The power amp, reverb and effects loop are left out. A simple cabinet stage is included so the output can be played straight into a DAW.
