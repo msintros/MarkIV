@@ -1,6 +1,6 @@
 # Disclaimer
 
-This is very much a work in progress, and mostly I just wanted to see how easy it would be to give Claude an electronics schematic and have it turn it into a working plug-in.  In its current state, the lead and R2 channels sound similar to a real Mark IV but R1 clean is almost useless.  I suspect I will have to have Claude somehow condition the input signal to mimic the correct impedance.  Anyway, if you build this in its current state, don't expect it to knock your socks off.  Also note that while it does have a built-in IR loader, so far I have not attempted to model anything but the pre-amp.  If you actually try this out, I suggest sending it to a dedicated IR loader or speaker sim, or it will sound pretty bad (like most preamps do by themselves).  
+This is very much a work in progress, and mostly I just wanted to see how easy it would be to give Claude an electronics schematic and have it turn it into a working plug-in.  In its current state, the lead and R2 channels sound *similar* to a real Mark IV but R1 clean is almost useless.  I suspect I will have to have Claude somehow condition the input signal to mimic the correct impedance.  Anyway, if you build this in its current state, don't expect it to knock your socks off.  Also note that while it does have a built-in IR loader, so far I have not attempted to model anything but the pre-amp.  If you actually try this out, I suggest sending it to a dedicated IR loader or speaker sim, or it will sound pretty bad (like most preamps do by themselves).  
 
 # Mark IV Preamp
 
